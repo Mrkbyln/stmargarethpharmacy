@@ -36,7 +36,7 @@ const Settings: React.FC = () => {
   useEffect(() => {
     const fetchBackups = async () => {
       try {
-        const response = await fetch('/api/backup/list.php');
+        const response = await fetch('/api/backup/list');
         if (response.ok) {
           const data = await response.json();
           setBackups(data);
@@ -65,7 +65,7 @@ const Settings: React.FC = () => {
     const checkGoogleDriveStatus = async () => {
       setCheckingGoogleStatus(true);
       try {
-        const response = await fetch('/api/backup/google-auth-status.php');
+        const response = await fetch('/api/backup/google-auth-status');
         if (response.ok) {
           const data = await response.json();
           setGoogleDriveConfigured(data.configured);
@@ -98,7 +98,7 @@ const Settings: React.FC = () => {
   const handleDisconnectGoogle = async () => {
     setDisconnectingGoogle(true);
     try {
-      const response = await fetch('/api/backup/google-disconnect.php', {
+      const response = await fetch('/api/backup/google-disconnect', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' }
       });
@@ -109,7 +109,7 @@ const Settings: React.FC = () => {
         setGoogleDriveAuthenticated(false);
         
         // Refetch the auth status to get the new auth URL
-        const statusResponse = await fetch('/api/backup/google-auth-status.php');
+        const statusResponse = await fetch('/api/backup/google-auth-status');
         if (statusResponse.ok) {
           const statusData = await statusResponse.json();
           if (statusData.authUrl) {
@@ -142,7 +142,7 @@ const Settings: React.FC = () => {
     
     // Save to database for email use
     try {
-      const response = await fetch('/api/config/settings.php', {
+      const response = await fetch('/api/config/settings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -173,7 +173,7 @@ const Settings: React.FC = () => {
     setBackupMessage('');
     try {
       const userId = user?.UserID || user?.id;
-      const response = await fetch('/api/backup/create.php', {
+      const response = await fetch('/api/backup/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId })
@@ -194,7 +194,7 @@ const Settings: React.FC = () => {
         setBackupMessage('✅ Backup downloaded successfully');
         
         // Refresh backup list
-        const listResponse = await fetch('/api/backup/list.php');
+        const listResponse = await fetch('/api/backup/list');
         if (listResponse.ok) {
           const data = await listResponse.json();
           setBackups(data);
@@ -232,7 +232,7 @@ const Settings: React.FC = () => {
       setBackupMessage('⏳ Importing database from file: ' + file.name + '...');
       
       const userId = user?.UserID || user?.id;
-      const response = await fetch(`/api/backup/import.php?userId=${userId}`, {
+      const response = await fetch(`/api/backup/import?userId=${userId}`, {
         method: 'POST',
         body: formData
       });
@@ -243,7 +243,7 @@ const Settings: React.FC = () => {
         setBackupMessage(`✅ ${data.message}`);
         
         // Refresh backup list
-        const listResponse = await fetch('/api/backup/list.php');
+        const listResponse = await fetch('/api/backup/list');
         if (listResponse.ok) {
           const backupList = await listResponse.json();
           setBackups(backupList);
@@ -270,7 +270,7 @@ const Settings: React.FC = () => {
   const downloadBackup = async (backupId: string) => {
     try {
       const userId = user?.UserID || user?.id;
-      const response = await fetch(`/api/backup/download.php?backupId=${encodeURIComponent(backupId)}&action=download&userId=${userId}`);
+      const response = await fetch(`/api/backup/download?backupId=${encodeURIComponent(backupId)}&action=download&userId=${userId}`);
       
       if (response.ok) {
         const blob = await response.blob();
@@ -297,7 +297,7 @@ const Settings: React.FC = () => {
     
     try {
       const userId = user?.UserID || user?.id;
-      const response = await fetch(`/api/backup/download.php?backupId=${encodeURIComponent(backupId)}&action=restore&userId=${userId}`, {
+      const response = await fetch(`/api/backup/download?backupId=${encodeURIComponent(backupId)}&action=restore&userId=${userId}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' }
       });

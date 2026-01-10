@@ -74,7 +74,7 @@ const Login: React.FC = () => {
     
     const pollInterval = setInterval(async () => {
       try {
-        const response = await fetch('/api/auth/check-lockout.php', {
+        const response = await fetch('/api/auth/check-lockout', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

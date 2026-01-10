@@ -54,7 +54,7 @@ const AutoBackupScheduler: React.FC = () => {
       
       const userId = user?.UserID || user?.id || null; // Can be null if system backup
       
-      const response = await fetch('/api/backup/auto-backup.php', {
+      const response = await fetch('/api/backup/auto-backup', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -78,7 +78,7 @@ const Dashboard: React.FC = () => {
         setSaleItems(prev => ({ ...prev, [saleId]: [] }));
       } else {
         // Fetch items for POS sales
-        const response = await fetch(`/api/sales/read.php?saleId=${saleId}`);
+        const response = await fetch(`/api/sales/read?saleId=${saleId}`);
         const data = await response.json();
         
         if (data.success && data.items) {

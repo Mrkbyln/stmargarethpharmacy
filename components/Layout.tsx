@@ -279,7 +279,7 @@ const Layout: React.FC = () => {
     setPinLoading(true);
     setPinError('');
 
-    fetch('http://localhost/stmargareth/api/auth/verify-admin-pin.php', {
+    fetch('http://localhost/stmargareth/api/auth/verify-admin-pin', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
