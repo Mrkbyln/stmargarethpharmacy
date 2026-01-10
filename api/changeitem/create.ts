@@ -1,0 +1,115 @@
+import { VercelRequest, VercelResponse } from '@vercel/node';
+import { supabase } from '../utils/db';
+import { errorResponse, successResponse, getUserFromRequest, logAuditEvent } from '../utils/helpers';
+
+export default async function handler(req: VercelRequest, res: VercelResponse) {
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  res.setHeader('Access-Control-Allow-Origin', req.headers.origin || '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+
+  if (req.method !== 'POST') {
+    return errorResponse(res, 405, 'Method not allowed');
+  }
+
+  try {
+    const user = getUserFromRequest(req);
+    
+    if (!user) {
+      return errorResponse(res, 401, 'Unauthorized');
+    }
+
+    const {
+      original_sale_id,
+      item_returned,
+      qty_returned,
+      item_given,
+      qty_given,
+      returned_item_price,
+      item_given_price,
+      additional_payment,
+      price_difference,
+      reason
+    } = req.body;
+
+    if (!original_sale_id || !item_returned || !qty_returned || !item_given || !qty_given) {
+      return errorResponse(res, 400, 'All required fields must be provided');
+    }
+
+    const { data, error } = await supabase
+      .from('change_items')
+      .insert({
+        original_sale_id,
+        item_returned,
+        qty_returned: parseInt(qty_returned),
+        item_given,
+        qty_given: parseInt(qty_given),
+        returned_item_price: parseFloat(returned_item_price || 0),
+        item_given_price: parseFloat(item_given_price || 0),
+        additional_payment: parseFloat(additional_payment || 0),
+        price_difference: parseFloat(price_difference || 0),
+        reason: reason || null,
+        processed_by: user.id,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      })
+      .select();
+
+    if (error) {
+      return errorResponse(res, 500, 'Failed to create change item', error);
+    }
+
+    // Adjust stock for returned item
+    const { data: returnedProduct } = await supabase
+      .from('products')
+      .select('current_stock')
+      .eq('id', item_returned)
+      .single();
+
+    if (returnedProduct) {
+      await supabase
+        .from('products')
+        .update({ current_stock: returnedProduct.current_stock + parseInt(qty_returned) })
+        .eq('id', item_returned);
+    }
+
+    // Adjust stock for given item
+    const { data: givenProduct } = await supabase
+      .from('products')
+      .select('current_stock')
+      .eq('id', item_given)
+      .single();
+
+    if (givenProduct) {
+      await supabase
+        .from('products')
+        .update({ current_stock: Math.max(0, givenProduct.current_stock - parseInt(qty_given)) })
+        .eq('id', item_given);
+    }
+
+    await logAuditEvent(
+      user.id,
+      'Item Exchange/Return Created',
+      {
+        original_sale_id,
+        item_returned,
+        item_given,
+        reason
+      },
+      req
+    );
+
+    return successResponse(res, {
+      message: 'Item exchange/return recorded successfully',
+      change_item: data?.[0]
+    }, 201);
+
+  } catch (error) {
+    console.error('Create change item error:', error);
+    return errorResponse(res, 500, 'Internal server error', error);
+  }
+}

@@ -1,0 +1,28 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /stmargareth/
+
+    # Allow direct access to files and directories that exist
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+
+    # Route API calls
+    RewriteRule ^api/ - [L]
+
+    # Route React app
+    RewriteRule ^(?!api/).*$ index.html [L]
+</IfModule>
+
+# Enable CORS
+<IfModule mod_headers.c>
+    Header set Access-Control-Allow-Origin "*"
+    Header set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
+    Header set Access-Control-Allow-Headers "Content-Type, Authorization"
+</IfModule>
+
+# PHP Configuration
+<IfModule mod_php.c>
+    php_value display_errors 1
+    php_value log_errors 1
+    php_value max_upload_size 50M
+</IfModule>

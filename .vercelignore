@@ -1,0 +1,25 @@
+psql -h db.btflwhesaunzdqnpjcdi.supabase.co -p 5432 -d postgres -U postgrespsql -h db.btflwhesaunzdqnpjcdi.supabase.co -p 5432 -d postgres -U postgresnode_modules
+.env
+.env.local
+.env.*.local
+.git
+.qodo
+backups
+dist
+.DS_Store
+*.log
+.next
+out
+test-db-connection.ts
+api/auth/**
+api/products/**
+api/users/**
+api/sales/**
+api/notifications/**
+api/auditlogs/**
+api/inventory/**
+api/discounts/**
+api/changeitem/**
+api/reports/**
+api/utils/**
+
