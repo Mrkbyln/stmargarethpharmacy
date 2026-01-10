@@ -55,7 +55,7 @@ class ApiClient {
 
   // Auth endpoints
   async login(username: string, password: string, role: string) {
-    return this.request<any>('/auth/login.php', 'POST', {
+    return this.request<any>('/auth/login', 'POST', {
       username,
       password,
       role,
@@ -63,20 +63,20 @@ class ApiClient {
   }
 
   async sendVerificationCode(email: string) {
-    return this.request<any>('/auth/send-verification-code.php', 'POST', {
+    return this.request<any>('/auth/forgot-password', 'POST', {
       email,
     });
   }
 
   async verifyResetCode(email: string, code: string) {
-    return this.request<any>('/auth/verify-reset-code.php', 'POST', {
+    return this.request<any>('/auth/verify-code', 'POST', {
       email,
       code,
     });
   }
 
   async verifyAdminPin(pin: string) {
-    return this.request<any>('/auth/verify-admin-pin.php', 'POST', {
+    return this.request<any>('/auth/verify-code', 'POST', {
       pin,
     });
   }
@@ -90,15 +90,15 @@ class ApiClient {
     if (options.sortOrder) params.append('sortOrder', options.sortOrder);
     
     const queryString = params.toString();
-    return this.request<any[]>(`/products/read.php${queryString ? `?${queryString}` : ''}`);
+    return this.request<any[]>(`/products/list${queryString ? `?${queryString}` : ''}`);
   }
 
   async createProduct(productData: any, currentUserId?: number) {
-    return this.request<any>('/products/create.php', 'POST', { ...productData, currentUserId });
+    return this.request<any>('/products/create', 'POST', { ...productData, currentUserId });
   }
 
   async updateProduct(productId: number, productData: any, currentUserId?: number) {
-    return this.request<any>('/products/update.php', 'POST', {
+    return this.request<any>('/products/update', 'POST', {
       productId,
       ...productData,
       currentUserId,
@@ -106,7 +106,7 @@ class ApiClient {
   }
 
   async getCategories() {
-    return this.request<any[]>('/products/categories.php');
+    return this.request<any[]>('/products/categories');
   }
 
   // Sales endpoints
@@ -124,7 +124,7 @@ class ApiClient {
       price: number;
     }>;
   }) {
-    return this.request<any>('/sales/create.php', 'POST', saleData);
+    return this.request<any>('/sales/create', 'POST', saleData);
   }
 
   async getSales(startDate?: string, endDate?: string) {
@@ -132,11 +132,11 @@ class ApiClient {
     if (startDate && endDate) {
       params = `?startDate=${encodeURIComponent(startDate)}&endDate=${encodeURIComponent(endDate)}`;
     }
-    return this.request<any[]>(`/sales/read.php${params}`);
+    return this.request<any[]>(`/sales/list${params}`);
   }
 
   async getAllTransactions() {
-    return this.request<any[]>('/sales/get-all-transactions.php');
+    return this.request<any[]>('/sales/get-all-transactions');
   }
 
   // Inventory endpoints
@@ -148,27 +148,27 @@ class ApiClient {
     if (options.sortOrder) params.append('sortOrder', options.sortOrder);
     
     const queryString = params.toString();
-    return this.request<any[]>(`/inventory/read.php${queryString ? `?${queryString}` : ''}`);
+    return this.request<any[]>(`/inventory/list${queryString ? `?${queryString}` : ''}`);
   }
 
   async getLowStockItems() {
-    return this.request<any[]>('/inventory/low-stock.php');
+    return this.request<any[]>('/inventory/low-stock');
   }
 
   async getExpiredItems() {
-    return this.request<any[]>('/inventory/expired.php');
+    return this.request<any[]>('/inventory/expired');
   }
 
   async getExpiredProducts() {
-    return this.request<any[]>('/reports/notifications.php?type=expired');
+    return this.request<any[]>('/reports/notifications?type=expired');
   }
 
   async getStockLevels() {
-    return this.request<any[]>('/inventory/stock.php');
+    return this.request<any[]>('/inventory/stock');
   }
 
   async getStockEntries() {
-    return this.request<any[]>('/inventory/stock_entries.php');
+    return this.request<any[]>('/inventory/stock_entries');
   }
 
   async addStockEntry(stockData: {
@@ -177,7 +177,7 @@ class ApiClient {
     batchNumber?: string;
     expirationDate?: string;
   }) {
-    return this.request<any>('/inventory/stock_entries.php', 'POST', stockData);
+    return this.request<any>('/inventory/stock_entries', 'POST', stockData);
   }
 
   async updateStockEntry(stockEntryId: number, stockData: {
@@ -185,35 +185,35 @@ class ApiClient {
     unitPrice?: number | string;
     expirationDate?: string;
   }) {
-    return this.request<any>('/inventory/stock_entries.php', 'PUT', {
+    return this.request<any>('/inventory/stock_entries', 'PUT', {
       id: stockEntryId,
       ...stockData
     });
   }
 
   async deleteStockEntry(stockEntryId: number) {
-    return this.request<any>('/inventory/stock_entries.php', 'DELETE', {
+    return this.request<any>('/inventory/stock_entries', 'DELETE', {
       id: stockEntryId
     });
   }
 
   async deleteProduct(productId: number) {
-    return this.request<any>('/products/delete.php', 'POST', {
+    return this.request<any>('/products/delete', 'POST', {
       productId
     });
   }
 
   // Change Item endpoints
   async getSalesForReturn() {
-    return this.request<any[]>('/sales/read.php');
+    return this.request<any[]>('/sales/list');
   }
 
   async getSaleItems(saleId: number) {
-    return this.request<any>(`/sales/read.php?saleId=${saleId}`);
+    return this.request<any>(`/sales/list?saleId=${saleId}`);
   }
 
   async getChangeItemHistory() {
-    return this.request<any[]>('/changeitem/read.php');
+    return this.request<any[]>('/changeitem/list');
   }
 
   async createChangeItem(changeData: {
@@ -231,11 +231,11 @@ class ApiClient {
     returnedStockEntryId?: number;
     replacementStockEntryId?: number;
   }) {
-    return this.request<any>('/changeitem/create.php', 'POST', changeData);
+    return this.request<any>('/changeitem/create', 'POST', changeData);
   }
 
   async getDamagedItems() {
-    return this.request<any[]>('/inventory/damaged-items.php');
+    return this.request<any[]>('/inventory/damaged-items');
   }
 
   async markItemsDamaged(damageData: {
@@ -245,7 +245,7 @@ class ApiClient {
     replacementProduct?: string;
     currentUserId?: number | null;
   }) {
-    return this.request<any>('/inventory/damaged-items.php', 'POST', damageData);
+    return this.request<any>('/inventory/damaged-items', 'POST', damageData);
   }
 
   // Report endpoints
@@ -254,7 +254,7 @@ class ApiClient {
     if (startDate && endDate) {
       params = `?startDate=${encodeURIComponent(startDate)}&endDate=${encodeURIComponent(endDate)}`;
     }
-    return this.request<any>(`/reports/sales_summary.php${params}`);
+    return this.request<any>(`/reports/sales_summary${params}`);
   }
 
   async getAuditLogs(startDate?: string, endDate?: string) {
@@ -262,7 +262,7 @@ class ApiClient {
     if (startDate && endDate) {
       params = `?startDate=${encodeURIComponent(startDate)}&endDate=${encodeURIComponent(endDate)}`;
     }
-    return this.request<any[]>(`/reports/audit_logs.php${params}`);
+    return this.request<any[]>(`/reports/audit_logs${params}`);
   }
 
   async getInventoryLogs(startDate?: string, endDate?: string) {
@@ -270,7 +270,7 @@ class ApiClient {
     if (startDate && endDate) {
       params = `?startDate=${encodeURIComponent(startDate)}&endDate=${encodeURIComponent(endDate)}`;
     }
-    return this.request<any[]>(`/reports/inventory_logs.php${params}`);
+    return this.request<any[]>(`/reports/inventory_logs${params}`);
   }
 
   async logAction(action: string, userId?: number) {
@@ -278,12 +278,12 @@ class ApiClient {
     if (userId) {
       payload.userId = userId;
     }
-    return this.request<any>('/reports/log_action.php', 'POST', payload);
+    return this.request<any>('/reports/log_action', 'POST', payload);
   }
 
   // User endpoints
   async getUsers() {
-    return this.request<any[]>('/users/read.php');
+    return this.request<any[]>('/users/list');
   }
 
   async createUser(userData: {
@@ -294,7 +294,7 @@ class ApiClient {
     fullName?: string;
     currentUserId?: number;
   }) {
-    return this.request<any>('/users/create.php', 'POST', userData);
+    return this.request<any>('/users/create', 'POST', userData);
   }
 
   async updateUser(userId: number, userData: {
@@ -306,11 +306,11 @@ class ApiClient {
     IsActive?: number;
     currentUserId?: number;
   }) {
-    return this.request<any>('/users/update.php', 'POST', { userId, ...userData });
+    return this.request<any>('/users/update', 'POST', { userId, ...userData });
   }
 
   async deleteUser(userId: number, currentUserId?: number) {
-    return this.request<any>('/users/delete.php', 'POST', { userId, currentUserId });
+    return this.request<any>('/users/delete', 'POST', { userId, currentUserId });
   }
 
   async updateProfile(userData: {
@@ -319,58 +319,58 @@ class ApiClient {
     password?: string;
     userId?: string;
   }) {
-    return this.request<any>('/users/profile.php', 'POST', userData);
+    return this.request<any>('/users/profile', 'POST', userData);
   }
 
   async updateProfileImage(imageData: {
     userId: string;
     image: string; // Base64 encoded image
   }) {
-    return this.request<any>('/users/update-profile-image.php', 'POST', imageData);
+    return this.request<any>('/users/update-profile-image', 'POST', imageData);
   }
 
   // Notification endpoints
   async getNotifications() {
-    return this.request<any[]>('/reports/notifications.php', 'GET');
+    return this.request<any[]>('/reports/notifications', 'GET');
   }
 
   async getNotificationsByType(type: 'expired' | 'expiring_soon' | 'low_stock' | 'no_stock') {
-    return this.request<any[]>(`/reports/notifications.php?type=${type}`, 'GET');
+    return this.request<any[]>(`/reports/notifications?type=${type}`, 'GET');
   }
 
   async getExpiredProducts() {
-    return this.request<any[]>('/reports/notifications.php?type=expired', 'GET');
+    return this.request<any[]>('/reports/notifications?type=expired', 'GET');
   }
 
   async generateNotifications() {
-    return this.request<any>('/reports/notifications.php', 'POST', { action: 'generate' });
+    return this.request<any>('/reports/notifications', 'POST', { action: 'generate' });
   }
 
   async markNotificationAsRead(notificationId: number) {
-    return this.request<any>('/reports/notifications.php', 'PUT', { notificationId });
+    return this.request<any>('/reports/notifications', 'PUT', { notificationId });
   }
 
   async markAllNotificationsAsRead() {
-    return this.request<any>('/reports/notifications.php', 'PUT', { markAll: true });
+    return this.request<any>('/reports/notifications', 'PUT', { markAll: true });
   }
 
   async markAllNotificationsAsUnread() {
-    return this.request<any>('/reports/notifications.php', 'PUT', { markAllUnread: true });
+    return this.request<any>('/reports/notifications', 'PUT', { markAllUnread: true });
   }
 
   // Discount endpoints
   async getDiscounts() {
     // For POS - get only active discounts
-    return this.request<any[]>('/discounts/list.php');
+    return this.request<any[]>('/discounts/list');
   }
 
   async getAllDiscounts() {
     // For admin management - get all discounts including inactive
-    return this.request<any[]>('/discounts/all.php');
+    return this.request<any[]>('/discounts/all');
   }
 
   async getDiscount(discountId: number) {
-    return this.request<any>(`/discounts/read.php?id=${discountId}`);
+    return this.request<any>(`/discounts/list?id=${discountId}`);
   }
 
   async createDiscount(discountData: {
@@ -378,7 +378,7 @@ class ApiClient {
     DiscountRate: number;
     IsActive?: number | boolean;
   }) {
-    return this.request<any>('/discounts/create.php', 'POST', discountData);
+    return this.request<any>('/discounts/create', 'POST', discountData);
   }
 
   async updateDiscount(discountId: number, discountData: {
@@ -386,11 +386,11 @@ class ApiClient {
     DiscountRate?: number;
     IsActive?: number | boolean;
   }) {
-    return this.request<any>(`/discounts/update.php?id=${discountId}`, 'PUT', discountData);
+    return this.request<any>(`/discounts/update?id=${discountId}`, 'PUT', discountData);
   }
 
   async deleteDiscount(discountId: number) {
-    return this.request<any>(`/discounts/delete.php?id=${discountId}`, 'DELETE');
+    return this.request<any>(`/discounts/delete?id=${discountId}`, 'DELETE');
   }
 }
 
