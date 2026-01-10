@@ -68,6 +68,7 @@ async function handleAuth(req: VercelRequest, res: VercelResponse, action: strin
     'forgot-password': async () => (await import('./auth/forgotPassword')).default(req, res),
     'reset-password': async () => (await import('./auth/resetPassword')).default(req, res),
     'verify-code': async () => (await import('./auth/verifyCode')).default(req, res),
+    'check-lockout': async () => res.json({ locked: false }), // Stub - no lockout tracking
   };
   
   if (handlers[action]) {
@@ -190,6 +191,7 @@ async function handleReports(req: VercelRequest, res: VercelResponse, action: st
     'inventory': async () => (await import('./reports/inventory-summary')).default(req, res),
     'damage': async () => (await import('./reports/damage-report')).default(req, res),
     'audit': async () => (await import('./reports/audit-summary')).default(req, res),
+    'notifications': async () => res.json({ notifications: [] }), // Stub - return empty notifications
   };
   
   if (handlers[action]) {
