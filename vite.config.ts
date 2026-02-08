@@ -19,6 +19,9 @@ export default defineConfig(({ mode }) => {
       },
       plugins: [react()],
       build: {
+        // Increase chunk size warning limit to reduce noisy warnings for large vendor chunks.
+        // Adjust this value if you still want to be warned for very large bundles.
+        chunkSizeWarningLimit: 1600,
         rollupOptions: {
           output: {
             manualChunks(id) {
