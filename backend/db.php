@@ -15,10 +15,9 @@ function get_db() {
     try {
         $pdo = new PDO($dsn, DB_USER, DB_PASS, $opts);
     } catch (PDOException $e) {
-        http_response_code(500);
-        header('Content-Type: application/json');
-        echo json_encode(['error' => 'Database connection failed']);
-        exit;
+        // Log the detailed error on the server for debugging, but do not expose secrets to clients
+        error_log('Database connection failed: ' . $e->getMessage());
+        throw new Exception('Database connection failed');
     }
 
     return $pdo;

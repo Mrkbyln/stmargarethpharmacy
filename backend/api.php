@@ -32,6 +32,20 @@ try {
     $db = get_db();
 
     // Route: /api/products or /api/products/{id}
+    // Health check: /api/health
+    if (isset($segments[0]) && $segments[0] === 'health') {
+        try {
+            // Attempt to get a DB connection
+            $db = get_db();
+            echo json_encode(['ok' => true, 'db' => 'connected']);
+        } catch (Exception $e) {
+            error_log('Health check DB error: ' . $e->getMessage());
+            http_response_code(500);
+            echo json_encode(['ok' => false, 'error' => 'db_connection_failed']);
+        }
+        exit;
+    }
+
     if (isset($segments[0]) && $segments[0] === 'products') {
         if ($method === 'GET') {
             if (isset($segments[1])) {
