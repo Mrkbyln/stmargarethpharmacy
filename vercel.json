@@ -5,6 +5,10 @@
   ],
   "routes": [
     { "handle": "filesystem" },
+    {
+      "src": "/(.*\\.(?:js|css|map|json|png|jpg|jpeg|svg|ico|woff2|woff|ttf))$",
+      "dest": "/$1"
+    },
     { "src": "/(.*)", "dest": "/index.html" }
   ]
 }
