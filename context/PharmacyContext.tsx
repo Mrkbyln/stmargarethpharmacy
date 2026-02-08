@@ -336,17 +336,17 @@ export const PharmacyProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     });
 
     return () => unsubscribe();
-
-    // Set up REAL-TIME notifications (every 3 seconds for instant updates)
-    realtimeNotificationService.startPolling(apiClient);
-
-    return () => {
-      realtimeNotificationService.stopPolling();
-    };
   }, []);
 
   // Subscribe to real-time notification updates
   useEffect(() => {
+    // Start realtime polling in a guarded way and subscribe to updates
+    try {
+      realtimeNotificationService.startPolling(apiClient);
+    } catch (err) {
+      console.error('Failed to start realtime polling:', err);
+    }
+
     const unsubscribe = realtimeNotificationService.subscribe({
       onNotificationAdded: (notification: any) => {
         console.log('🆕 Real-time notification added:', notification.Message);
@@ -373,7 +373,14 @@ export const PharmacyProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       },
     });
 
-    return () => unsubscribe();
+    return () => {
+      try {
+        realtimeNotificationService.stopPolling();
+      } catch (err) {
+        console.error('Failed to stop realtime polling:', err);
+      }
+      unsubscribe();
+    };
   }, []);
 
   // Helper to add log

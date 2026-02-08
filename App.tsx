@@ -17,6 +17,7 @@ const DiagnosticsPage = React.lazy(() => import('./pages/DiagnosticsPage'));
 import Layout from './components/Layout';
 import AutoBackupScheduler from './components/AutoBackupScheduler';
 import ConnectivityIndicator from './components/ConnectivityIndicator';
+import ErrorBoundary from './components/ErrorBoundary';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user } = usePharmacy();
@@ -112,7 +113,9 @@ const App: React.FC = () => {
   return (
     <PharmacyProvider>
       <ConnectivityIndicator />
-      <AppContent />
+      <ErrorBoundary>
+        <AppContent />
+      </ErrorBoundary>
     </PharmacyProvider>
   );
 };
