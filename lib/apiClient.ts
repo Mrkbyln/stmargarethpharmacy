@@ -1,7 +1,4 @@
-// Compatibility shim: many files import `../lib/apiClient` from pages/*
-// Re-export the implementation from `src/lib/apiClient`.
-import apiClient from '../src/lib/apiClient';
-export default apiClient;
+// lib/apiClient.ts - API client for React frontend
 // lib/apiClient.ts - API client for React frontend
 
 // Use relative URLs that will be proxied by Vite in development
