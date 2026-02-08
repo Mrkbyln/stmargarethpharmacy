@@ -23,6 +23,8 @@ export default defineConfig(({ mode }) => {
         // Increase chunk size warning limit to reduce noisy warnings for large vendor chunks.
         // Adjust this value if you still want to be warned for very large bundles.
         chunkSizeWarningLimit: 1600,
+        // Enable sourcemaps for production builds to help debugging runtime errors.
+        sourcemap: true,
         rollupOptions: {
           output: {
             manualChunks(id) {
