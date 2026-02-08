@@ -1,0 +1,8 @@
+# Exclude backend PHP files from Vercel deployment (Hostinger will run these)
+backend/**
+
+# Node/Vite build artifacts and local config
+node_modules/**
+dist/**
+.env
+.env.*
