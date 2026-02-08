@@ -69,8 +69,26 @@ function run() {
   files.forEach(f => {
     const full = path.join(root, f);
     const content = read(full);
-    const { changed, out } = transformContent(content);
+    const { changed, out: transformed } = transformContent(content);
+    let out = transformed;
     if (changed) {
+      // If apiFetch is used but import missing, insert import to project-root `lib/api`
+      if (/\bapiFetch\s*\(/.test(out) || /\bapiFetch\b/.test(out)) {
+        const importRegex = /import\s+\{?\s*apiFetch\s*\}?\s+from\s+['"][^'"']+['"];?/;
+        if (!importRegex.test(out)) {
+          // compute relative path from file dir to repo-root/lib/api
+          const rel = path.relative(path.dirname(full), path.join(root, 'lib', 'api')) || './lib/api';
+          let relPath = rel.replace(/\\\\/g, '/');
+          if (!relPath.startsWith('.')) relPath = './' + relPath;
+          const importLine = `import { apiFetch } from '${relPath}';\n`;
+          // insert after any existing import block or at top
+          const lines = out.split(/\r?\n/);
+          let insertAt = 0;
+          while (insertAt < lines.length && lines[insertAt].startsWith('import')) insertAt++;
+          lines.splice(insertAt, 0, importLine);
+          out = lines.join('\n');
+        }
+      }
       results.push({ file: f, before: content, after: out });
     }
   });

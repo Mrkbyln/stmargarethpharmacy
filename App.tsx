@@ -1,7 +1,7 @@
 import React, { useEffect, Suspense } from 'react';
 import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { PharmacyProvider, usePharmacy } from './context/PharmacyContext';
-const Login = React.lazy(() => import('./pages/Login'));
+import Login from './pages/Login';
 const Dashboard = React.lazy(() => import('./pages/Dashboard'));
 const Inventory = React.lazy(() => import('./pages/products'));
 const POS = React.lazy(() => import('./pages/POS'));

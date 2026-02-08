@@ -27,3 +27,6 @@ Notes:
 	- `axios('/path', config?)` -> `apiFetch('/path', config)`
 
 	The conversion handles common call forms but may not correctly transform complex object-style `axios({ url: ..., method: ..., data: ... })` calls — please review those manually after running the script.
+
+Automatic import insertion
+- When the codemod transforms a file and it uses `apiFetch`, the script will now insert a relative import for `apiFetch` from `lib/api` at the top of the file (for example `import { apiFetch } from '../lib/api'`). A shim `lib/api.ts` was added to re-export `src/lib/api` so the import works project-wide.
