@@ -101,7 +101,7 @@ const AppContent: React.FC = () => {
           </Route>
         </Routes>
         </Suspense>
-      </HashRouter>
+      </BrowserRouter>
       {/* Modal root inside app wrapper to inherit font/theme */}
       <div id="modal-root"></div>
     </div>
