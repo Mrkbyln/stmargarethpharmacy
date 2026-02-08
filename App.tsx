@@ -1,19 +1,19 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, Suspense } from 'react';
 import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { PharmacyProvider, usePharmacy } from './context/PharmacyContext';
-import Login from './pages/Login';
-import Dashboard from './pages/Dashboard';
-import Inventory from './pages/products';
-import POS from './pages/POS';
-import Stock from './pages/Stock';
-import ChangeItem from './pages/ChangeItem';
-import DamagedItems from './pages/DamagedItems';
-import InventoryLogs from './pages/Inventory';
-import Reports from './pages/Reports';
-import AuditLogs from './pages/AuditLogs';
-import Settings from './pages/Settings';
-import Account from './pages/Account';
-import DiagnosticsPage from './pages/DiagnosticsPage';
+const Login = React.lazy(() => import('./pages/Login'));
+const Dashboard = React.lazy(() => import('./pages/Dashboard'));
+const Inventory = React.lazy(() => import('./pages/products'));
+const POS = React.lazy(() => import('./pages/POS'));
+const Stock = React.lazy(() => import('./pages/Stock'));
+const ChangeItem = React.lazy(() => import('./pages/ChangeItem'));
+const DamagedItems = React.lazy(() => import('./pages/DamagedItems'));
+const InventoryLogs = React.lazy(() => import('./pages/Inventory'));
+const Reports = React.lazy(() => import('./pages/Reports'));
+const AuditLogs = React.lazy(() => import('./pages/AuditLogs'));
+const Settings = React.lazy(() => import('./pages/Settings'));
+const Account = React.lazy(() => import('./pages/Account'));
+const DiagnosticsPage = React.lazy(() => import('./pages/DiagnosticsPage'));
 import Layout from './components/Layout';
 import AutoBackupScheduler from './components/AutoBackupScheduler';
 import ConnectivityIndicator from './components/ConnectivityIndicator';
@@ -62,6 +62,7 @@ const AppContent: React.FC = () => {
     <div className={`${fontFamily} w-full h-screen`}>
       <AutoBackupScheduler />
       <HashRouter>
+        <Suspense fallback={<div className="p-4">Loading...</div>}>
         <Routes>
           <Route path="/login" element={<Login />} />
           
@@ -99,6 +100,7 @@ const AppContent: React.FC = () => {
             } />
           </Route>
         </Routes>
+        </Suspense>
       </HashRouter>
       {/* Modal root inside app wrapper to inherit font/theme */}
       <div id="modal-root"></div>
