@@ -1,11 +1,9 @@
 
 import React, { useState, useEffect } from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
 import { Download, Calendar, AlertCircle, Loader } from 'lucide-react';
 import { usePharmacy } from '../context/PharmacyContext';
 import apiClient from '../lib/apiClient';
-import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
+// heavy libs (jspdf, html2canvas, recharts) are dynamically imported where used to reduce initial bundle
 import { saveAs } from 'file-saver';
 
 const Reports: React.FC = () => {
@@ -153,6 +151,16 @@ const Reports: React.FC = () => {
       fetchAuditLogs();
     }
   }, [user?.role, reportType]);
+
+  // Dynamically load recharts when Reports mounts (keeps charts out of main bundle)
+  const [rechartsModule, setRechartsModule] = useState<any | null>(null);
+  useEffect(() => {
+    let mounted = true;
+    import('recharts')
+      .then(mod => { if (mounted) setRechartsModule(mod); })
+      .catch(err => { console.warn('Failed to load recharts dynamically', err); });
+    return () => { mounted = false; };
+  }, []);
 
   // Fetch last month's inventory value when current inventory is calculated
   useEffect(() => {
@@ -323,6 +331,9 @@ const Reports: React.FC = () => {
 
     try {
       await new Promise(resolve => setTimeout(resolve, 100));
+
+      const [{ default: html2canvas }, jsPDFModule] = await Promise.all([import('html2canvas'), import('jspdf')]);
+      const jsPDF = jsPDFModule.default || jsPDFModule;
 
       const canvas = await html2canvas(element, {
         scale: 2,
@@ -799,25 +810,31 @@ const Reports: React.FC = () => {
               </div>
             ) : (
               <div className="h-72 w-full" style={{minWidth: 0}}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={salesData} margin={{ top: 10, right: 30, left: 0, bottom: 5 }}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={isDarkTheme ? '#374151' : 'var(--color-border)'} />
-                    <XAxis 
-                      dataKey="SaleDate" 
-                      axisLine={false} 
-                      tickLine={false} 
-                      tick={{fill: isDarkTheme ? '#e5e7eb' : '#64748b', fontSize: 9}} 
-                      interval={0}
-                    />
-                    <YAxis axisLine={false} tickLine={false} tick={{fill: isDarkTheme ? '#e5e7eb' : '#64748b'}} />
-                    <Tooltip 
-                      contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)', backgroundColor: isDarkTheme ? '#1f2937' : '#ffffff', color: isDarkTheme ? '#ffffff' : '#000000' }}
-                      cursor={{ stroke: 'var(--color-primary)', strokeWidth: 2, strokeDasharray: '3 3' }}
-                      formatter={(value: number) => [`${currencySymbol}${value.toFixed(2)}`, 'Inventory Value']}
-                    />
-                    <Line type="monotone" dataKey="GrossSales" stroke={isDarkTheme ? '#ffffff' : 'var(--color-primary)'} strokeWidth={2} dot={{ r: 4 }} activeDot={{ r: 8 }} />
-                  </LineChart>
-                </ResponsiveContainer>
+                {rechartsModule ? (
+                  <rechartsModule.ResponsiveContainer width="100%" height="100%">
+                    <rechartsModule.LineChart data={salesData} margin={{ top: 10, right: 30, left: 0, bottom: 5 }}>
+                      <rechartsModule.CartesianGrid strokeDasharray="3 3" vertical={false} stroke={isDarkTheme ? '#374151' : 'var(--color-border)'} />
+                      <rechartsModule.XAxis 
+                        dataKey="SaleDate" 
+                        axisLine={false} 
+                        tickLine={false} 
+                        tick={{fill: isDarkTheme ? '#e5e7eb' : '#64748b', fontSize: 9}} 
+                        interval={0}
+                      />
+                      <rechartsModule.YAxis axisLine={false} tickLine={false} tick={{fill: isDarkTheme ? '#e5e7eb' : '#64748b'}} />
+                      <rechartsModule.Tooltip 
+                        contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)', backgroundColor: isDarkTheme ? '#1f2937' : '#ffffff', color: isDarkTheme ? '#ffffff' : '#000000' }}
+                        cursor={{ stroke: 'var(--color-primary)', strokeWidth: 2, strokeDasharray: '3 3' }}
+                        formatter={(value: number) => [`${currencySymbol}${value.toFixed(2)}`, 'Inventory Value']}
+                      />
+                      <rechartsModule.Line type="monotone" dataKey="GrossSales" stroke={isDarkTheme ? '#ffffff' : 'var(--color-primary)'} strokeWidth={2} dot={{ r: 4 }} activeDot={{ r: 8 }} />
+                    </rechartsModule.LineChart>
+                  </rechartsModule.ResponsiveContainer>
+                ) : (
+                  <div className="h-72 flex items-center justify-center">
+                    <Loader className="animate-spin text-[var(--color-primary)]" size={32} />
+                  </div>
+                )}
               </div>
             )}
 
@@ -846,25 +863,31 @@ const Reports: React.FC = () => {
               </div>
             ) : (
               <div className="h-72 w-full" style={{minWidth: 0}}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={salesData} margin={{ top: 10, right: 30, left: 0, bottom: 5 }}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={isDarkTheme ? '#374151' : 'var(--color-border)'} />
-                    <XAxis 
-                      dataKey="SaleDate" 
-                      axisLine={false} 
-                      tickLine={false} 
-                      tick={{fill: isDarkTheme ? '#e5e7eb' : '#64748b', fontSize: 9}} 
-                      interval={0}
-                    />
-                    <YAxis axisLine={false} tickLine={false} tick={{fill: isDarkTheme ? '#e5e7eb' : '#64748b'}} />
-                    <Tooltip 
-                      contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)', backgroundColor: isDarkTheme ? '#1f2937' : '#ffffff', color: isDarkTheme ? '#ffffff' : '#000000' }}
-                      cursor={{ stroke: 'var(--color-primary)', strokeWidth: 2, strokeDasharray: '3 3' }}
-                      formatter={(value: number) => [`${currencySymbol}${value.toFixed(2)}`, 'Sales']}
-                    />
-                    <Line type="monotone" dataKey="NetSales" stroke={isDarkTheme ? '#ffffff' : 'var(--color-primary)'} strokeWidth={2} dot={{ r: 4 }} activeDot={{ r: 8 }} />
-                  </LineChart>
-                </ResponsiveContainer>
+                {rechartsModule ? (
+                  <rechartsModule.ResponsiveContainer width="100%" height="100%">
+                    <rechartsModule.LineChart data={salesData} margin={{ top: 10, right: 30, left: 0, bottom: 5 }}>
+                      <rechartsModule.CartesianGrid strokeDasharray="3 3" vertical={false} stroke={isDarkTheme ? '#374151' : 'var(--color-border)'} />
+                      <rechartsModule.XAxis 
+                        dataKey="SaleDate" 
+                        axisLine={false} 
+                        tickLine={false} 
+                        tick={{fill: isDarkTheme ? '#e5e7eb' : '#64748b', fontSize: 9}} 
+                        interval={0}
+                      />
+                      <rechartsModule.YAxis axisLine={false} tickLine={false} tick={{fill: isDarkTheme ? '#e5e7eb' : '#64748b'}} />
+                      <rechartsModule.Tooltip 
+                        contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)', backgroundColor: isDarkTheme ? '#1f2937' : '#ffffff', color: isDarkTheme ? '#ffffff' : '#000000' }}
+                        cursor={{ stroke: 'var(--color-primary)', strokeWidth: 2, strokeDasharray: '3 3' }}
+                        formatter={(value: number) => [`${currencySymbol}${value.toFixed(2)}`, 'Sales']}
+                      />
+                      <rechartsModule.Line type="monotone" dataKey="NetSales" stroke={isDarkTheme ? '#ffffff' : 'var(--color-primary)'} strokeWidth={2} dot={{ r: 4 }} activeDot={{ r: 8 }} />
+                    </rechartsModule.LineChart>
+                  </rechartsModule.ResponsiveContainer>
+                ) : (
+                  <div className="h-72 flex items-center justify-center">
+                    <Loader className="animate-spin text-[var(--color-primary)]" size={32} />
+                  </div>
+                )}
               </div>
             )}
 

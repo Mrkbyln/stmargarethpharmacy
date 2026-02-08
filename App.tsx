@@ -1,5 +1,5 @@
 import React, { useEffect, Suspense } from 'react';
-import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { PharmacyProvider, usePharmacy } from './context/PharmacyContext';
 import Login from './pages/Login';
 const Dashboard = React.lazy(() => import('./pages/Dashboard'));
@@ -61,7 +61,7 @@ const AppContent: React.FC = () => {
   return (
     <div className={`${fontFamily} w-full h-screen`}>
       <AutoBackupScheduler />
-      <HashRouter>
+      <BrowserRouter>
         <Suspense fallback={<div className="p-4">Loading...</div>}>
         <Routes>
           <Route path="/login" element={<Login />} />

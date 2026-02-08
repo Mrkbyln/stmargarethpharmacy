@@ -14,8 +14,17 @@ Files
 
 Deployment
 1. Upload the entire `backend` directory to your Hostinger site's document root (for example `public_html/backend`).
-2. Edit `backend/config.php` and set `DB_HOST`, `DB_NAME`, `DB_USER`, `DB_PASS`. Alternatively set environment variables via Hostinger if supported.
-3. Set `API_ALLOW_ORIGIN` in `config.php` to your Vercel frontend URL (for example `https://your-site.vercel.app`) to restrict CORS in production. For testing you can leave `*`.
+2. IMPORTANT: Do NOT commit or leave hardcoded DB credentials in `config.php`. Instead set the following environment variables in your Hostinger control panel or account settings:
+
+  - `DB_HOST` (default: `localhost`)
+  - `DB_NAME`
+  - `DB_USER`
+  - `DB_PASS`
+  - `API_ALLOW_ORIGIN` (set to your Vercel URL, e.g. `https://your-site.vercel.app`)
+
+  You can copy `backend/.env.example` as a template for local development — do NOT upload that file with real secrets.
+
+3. If environment variables are not available on your Hostinger plan, place the credentials in `config.php` temporarily, then rotate and replace them with environment variables as soon as possible.
 4. Ensure `.htaccess` is active (Apache with `mod_rewrite`). If your Hostinger plan does not allow `.htaccess` rewrites, you can call `api.php` directly (example: `https://example.com/backend/api.php/products`).
 
 Usage from frontend
