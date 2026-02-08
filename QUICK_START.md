@@ -130,6 +130,9 @@ function MedicineList() {
         }
       }
 
+      // Prefer using the centralized API helper configured via Vite env var `VITE_API_BASE`.
+      // Example: set `VITE_API_BASE=https://monitoring.mcars.ph` in Vercel environment variables.
+      // Then use `src/lib/api.ts` helper: `apiFetch('receipts.php')` will call https://monitoring.mcars.ph/receipts.php
       const res = await fetch('/api/inventory/products.php');
       const result = await res.json();
       setMedicines(result.data || []);
